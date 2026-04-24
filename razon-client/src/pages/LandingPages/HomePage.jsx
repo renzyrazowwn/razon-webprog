@@ -1,4 +1,4 @@
-import Button from '../components/Button';
+import Button from '../../components/Button';
 
 const HomePage = () => {
   return (
@@ -23,7 +23,6 @@ const HomePage = () => {
             </div>
           </div>
 
-          {/* enhnancement 2 images */}
           <div className="rounded-3xl border-2 border-zinc-900 overflow-hidden h-80">
             <img 
               src="https://images.unsplash.com/photo-1738321791387-a11c55f52d7a?q=80&w=1170" 

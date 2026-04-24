@@ -21,7 +21,6 @@ const NavBar = () => {
     <header className="fixed inset-x-0 top-0 z-50 border-b-2 border-zinc-900 bg-white/95 backdrop-blur-sm">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
         
-        {/* enhancement 3 logo */}
         <NavLink to="/" className="flex items-center gap-3 group">
           <div className="h-10 w-10 overflow-hidden rounded-lg border border-zinc-900">
             <img 
@@ -59,7 +58,7 @@ const NavBar = () => {
 
         <div className="flex items-center gap-3">
           <Button 
-            to="/" 
+            to="/auth/signup" 
             variant="primary" 
             className="bg-zinc-900 hover:bg-violet-600 border-zinc-900 text-white"
           >
