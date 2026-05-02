@@ -1,314 +1,75 @@
-import { useState } from 'react';
-import {
-  Alert,
-  Box,
-  Button,
-  Chip,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  FormControlLabel,
-  IconButton,
-  InputAdornment,
-  MenuItem,
-  Paper,
-  Stack,
-  Switch,
-  TextField,
-  Typography,
-  useMediaQuery,
-} from '@mui/material';
-import { useTheme } from '@mui/material/styles';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import { Box, Card, CardContent, Chip, Typography } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
-import usersSeed from '../../data/users.json?raw';
 
-const roles = ['admin', 'editor', 'viewer'];
-const genders = ['male', 'female', 'other'];
+const columns = [
+  { field: 'id', headerName: 'ID', width: 80 },
+  { field: 'firstName', headerName: 'First Name', width: 150 },
+  { field: 'lastName', headerName: 'Last Name', width: 150 },
+  { field: 'plan', headerName: 'Plan', width: 150 },
+  { field: 'goal', headerName: 'Fitness Goal', width: 190 },
+  {
+    field: 'status',
+    headerName: 'Status',
+    width: 140,
+    renderCell: (params) => (
+      <Chip
+        label={params.value}
+        size="small"
+        sx={{
+          bgcolor: params.value === 'Active' ? '#f5f3ff' : '#e4e4e7',
+          color: params.value === 'Active' ? '#7c3aed' : '#52525b',
+          border: params.value === 'Active' ? '1px solid #7c3aed' : '1px solid #a1a1aa',
+          fontWeight: 800,
+        }}
+      />
+    ),
+  },
+];
 
-const blankForm = {
-  firstName: '',
-  lastName: '',
-  age: '',
-  gender: '',
-  contactNumber: '',
-  email: '',
-  role: 'editor',
-  username: '',
-  password: '',
-  address: '',
-  isActive: true,
-};
-
-const labelize = (value) =>
-  value ? `${value.charAt(0).toUpperCase()}${value.slice(1)}` : '';
-
-const loadUsers = () => {
-  try {
-    return {
-      users: JSON.parse(usersSeed).map((user, index) => ({
-        id: Number(user.id) || index + 1,
-        firstName: String(user.firstName ?? '').trim(),
-        lastName: String(user.lastName ?? '').trim(),
-        age: String(user.age ?? '').trim(),
-        gender: genders.includes(String(user.gender ?? '').trim().toLowerCase())
-          ? String(user.gender ?? '').trim().toLowerCase()
-          : '',
-        contactNumber: String(user.contactNumber ?? '').trim(),
-        email: String(user.email ?? '').trim().toLowerCase(),
-        role: roles.includes(String(user.role ?? '').trim().toLowerCase())
-          ? String(user.role ?? '').trim().toLowerCase()
-          : 'editor',
-        username: String(user.username ?? '').trim().toLowerCase(),
-        password: String(user.password ?? '').trim(),
-        address: String(user.address ?? '').trim(),
-        isActive:
-          typeof user.isActive === 'boolean' ? user.isActive : true,
-      })),
-      error: '',
-    };
-  } catch {
-    return {
-      users: [],
-      error: 'Unable to read users from src/assets/users.json.',
-    };
-  }
-};
-
-const seed = loadUsers();
+const rows = [
+  { id: 1, firstName: 'Jon', lastName: 'Snow', plan: 'Basic', goal: 'Strength Training', status: 'Active' },
+  { id: 2, firstName: 'Cersei', lastName: 'Lannister', plan: 'Premium', goal: 'Weight Loss', status: 'Active' },
+  { id: 3, firstName: 'Jaime', lastName: 'Lannister', plan: 'Premium', goal: 'Muscle Gain', status: 'Inactive' },
+  { id: 4, firstName: 'Arya', lastName: 'Stark', plan: 'Student', goal: 'Cardio Fitness', status: 'Active' },
+  { id: 5, firstName: 'Daenerys', lastName: 'Targaryen', plan: 'Premium', goal: 'Endurance', status: 'Active' },
+  { id: 6, firstName: 'Ferrara', lastName: 'Clifford', plan: 'Basic', goal: 'Mobility', status: 'Inactive' },
+];
 
 const UsersPage = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const [users, setUsers] = useState(seed.users);
-  const [modal, setModal] = useState({ open: false, id: null });
-  const [form, setForm] = useState(blankForm);
-  const [errors, setErrors] = useState({});
-  const [showPassword, setShowPassword] = useState(false);
-
-  const resetForm = () => {
-    setForm({ ...blankForm });
-    setErrors({});
-  };
-
-  const openModal = (user) => {
-    setModal({ open: true, id: user?.id ?? null });
-    setForm(user ? { ...blankForm, ...user } : { ...blankForm });
-    setErrors({});
-  };
-
-  const closeModal = () => {
-    setModal({ open: false, id: null });
-    setShowPassword(false);
-    resetForm();
-  };
-
-  const handleChange = ({ target: { name, value, checked, type } }) => {
-    setForm((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
-
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: '' }));
-    }
-  };
-
-  const validate = () => {
-    const nextErrors = {};
-    const email = form.email.trim().toLowerCase();
-    const username = form.username.trim().toLowerCase();
-
-    [
-      ['firstName', 'First name'],
-      ['lastName', 'Last name'],
-      ['age', 'Age'],
-      ['gender', 'Gender'],
-      ['contactNumber', 'Contact number'],
-      ['email', 'Email'],
-      ['role', 'Role'],
-      ['username', 'Username'],
-      ['password', 'Password'],
-      ['address', 'Address'],
-    ].forEach(([key, label]) => {
-      if (!String(form[key]).trim()) {
-        nextErrors[key] = `${label} is required.`;
-      }
-    });
-
-    if (!nextErrors.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      nextErrors.email = 'Enter a valid email address.';
-    }
-
-    if (
-      !nextErrors.email &&
-      users.some(
-        (user) =>
-          user.id !== modal.id && user.email === email
-      )
-    ) {
-      nextErrors.email = 'Email address already exists.';
-    }
-
-    if (
-      !nextErrors.username &&
-      users.some(
-        (user) =>
-          user.id !== modal.id && user.username === username
-      )
-    ) {
-      nextErrors.username = 'Username already exists.';
-    }
-
-    return nextErrors;
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const nextErrors = validate();
-
-    if (Object.keys(nextErrors).length) {
-      setErrors(nextErrors);
-      return;
-    }
-
-    const nextUser = {
-      firstName: form.firstName.trim(),
-      lastName: form.lastName.trim(),
-      age: form.age.trim(),
-      gender: form.gender.trim().toLowerCase(),
-      contactNumber: form.contactNumber.trim(),
-      email: form.email.trim().toLowerCase(),
-      role: form.role.trim().toLowerCase(),
-      username: form.username.trim().toLowerCase(),
-      password: form.password,
-      address: form.address.trim(),
-      isActive: form.isActive,
-    };
-
-    setUsers((prev) =>
-      modal.id
-        ? prev.map((user) =>
-            user.id === modal.id ? { ...user, ...nextUser } : user
-          )
-        : [
-            ...prev,
-            {
-              id:
-                prev.reduce(
-                  (max, user) => Math.max(max, Number(user.id) || 0),
-                  0
-                ) + 1,
-              ...nextUser,
-            },
-          ]
-    );
-
-    closeModal();
-  };
-
-  const toggleStatus = (id) => {
-    setUsers((prev) =>
-      prev.map((user) =>
-        user.id === id
-          ? { ...user, isActive: !user.isActive }
-          : user
-      )
-    );
-  };
-
-  const fieldProps = (name, label, extra = {}) => ({
-    name,
-    label,
-    value: form[name],
-    onChange: handleChange,
-    error: Boolean(errors[name]),
-    helperText: errors[name],
-    fullWidth: true,
-    ...extra,
-  });
-
-  const columns = [
-    { field: 'id', headerName: 'ID', width: 80 },
-    {
-      field: 'fullName',
-      headerName: 'Full Name',
-      minWidth: 170,
-      flex: 1,
-      valueGetter: (_, row) =>
-        `${row.firstName} ${row.lastName}`.trim(),
-    },
-    {
-      field: 'username',
-      headerName: 'Username',
-      minWidth: 150,
-      flex: 1,
-    },
-    {
-      field: 'gender',
-      headerName: 'Gender',
-      minWidth: 110,
-      valueGetter: (_, row) => labelize(row.gender),
-    },
-    {
-      field: 'contactNumber',
-      headerName: 'Contact Number',
-      minWidth: 160,
-      flex: 1,
-    },
-    {
-      field: 'role',
-      headerName: 'Role',
-      minWidth: 120,
-      valueGetter: (_, row) => labelize(row.role),
-    },
-    {
-      field: 'status',
-      headerName: 'Status',
-      minWidth: 120,
-      sortable: false,
-      renderCell: ({ row }) => (
-        <Chip
-          size="small"
-          label={row.isActive ? 'Active' : 'Inactive'}
-          color={row.isActive ? 'success' : 'default'}
-          variant={row.isActive ? 'filled' : 'outlined'}
-        />
-      ),
-    },
-    {
-      field: 'actions',
-      headerName: 'Actions',
-      minWidth: 220,
-      sortable: false,
-      filterable: false,
-      renderCell: ({ row }) => (
-        <Stack direction="row" spacing={1} sx={{ py: 0.5 }}>
-          <Button
-            size="small"
-            variant="outlined"
-            onClick={() => openModal(row)}
-          >
-            Edit
-          </Button>
-          <Button
-            size="small"
-            variant="contained"
-            color={row.isActive ? 'warning' : 'success'}
-            onClick={() => toggleStatus(row.id)}
-          >
-            {row.isActive ? 'Disable' : 'Activate'}
-          </Button>
-        </Stack>
-      ),
-    },
-  ];
-
   return (
-    <Box sx={{ width: '100%', minWidth: 0 }}>
-      {/* UI continues... */}
+    <Box sx={{ minHeight: '100vh', bgcolor: '#f4f4f5', color: '#18181b' }}>
+      <Typography variant="h4" fontWeight={900} gutterBottom>
+        Users
+      </Typography>
+
+      <Typography sx={{ mb: 3, color: '#52525b' }}>
+        User list and member details for VibeFitness.
+      </Typography>
+
+      <Card sx={{ border: '2px solid #18181b', borderRadius: 4, boxShadow: 'none' }}>
+        <CardContent>
+          <Typography variant="h6" fontWeight={800} gutterBottom>
+            Member Details
+          </Typography>
+
+          <Box sx={{ height: 430, width: '100%' }}>
+            <DataGrid
+              rows={rows}
+              columns={columns}
+              initialState={{
+                pagination: {
+                  paginationModel: {
+                    pageSize: 5,
+                  },
+                },
+              }}
+              pageSizeOptions={[5]}
+              checkboxSelection
+              disableRowSelectionOnClick
+            />
+          </Box>
+        </CardContent>
+      </Card>
     </Box>
   );
 };
