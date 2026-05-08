@@ -13,8 +13,6 @@ import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
@@ -22,6 +20,7 @@ import ListItemText from "@mui/material/ListItemText";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PeopleIcon from "@mui/icons-material/People";
 import AssessmentIcon from "@mui/icons-material/Assessment";
+import LogoutIcon from "@mui/icons-material/Logout";
 import Button from "@mui/material/Button";
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
 
@@ -223,11 +222,7 @@ const DashLayout = () => {
       </AppBar>
 
         <Drawer variant="permanent" open={open}>
-        <DrawerHeader>
-            <IconButton onClick={handleDrawerClose}>
-            {theme.direction === "rtl" ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-            </IconButton>
-        </DrawerHeader>
+        <DrawerHeader />
 
         <Divider sx={{ borderColor: "#18181b" }} />
 
@@ -299,25 +294,30 @@ const DashLayout = () => {
 
             <Box sx={{ px: 1 }}>
             <Button
-                fullWidth
-                onClick={handleLogout}
-                sx={{
-                minHeight: 48,
+              fullWidth
+              onClick={handleLogout}
+              sx={{
+                minHeight: open ? 48 : 40,
+                minWidth: open ? 'auto' : 40,
+                px: open ? 2 : 0,
                 border: "2px solid #18181b",
                 borderRadius: "999px",
                 color: "#18181b",
                 fontSize: 10,
                 fontWeight: 900,
                 letterSpacing: "0.2em",
-                justifyContent: open ? "center" : "center",
+                justifyContent: "center",
                 "&:hover": {
-                    bgcolor: "#7c3aed",
-                    color: "#ffffff",
-                    border: "2px solid #18181b",
+                  bgcolor: "#7c3aed",
+                  color: "#ffffff",
+                  border: "2px solid #18181b",
                 },
-                }}
+              }}
             >
-                {open ? "Logout" : "Out"}
+              <>
+                {!open && <LogoutIcon sx={{ fontSize: 18 }} />}
+                {open ? "Logout" : ""}
+              </>
             </Button>
             </Box>
         </Box>
