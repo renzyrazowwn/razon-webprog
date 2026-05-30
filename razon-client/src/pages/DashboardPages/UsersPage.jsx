@@ -347,7 +347,15 @@ const UsersPage = () => {
         const firstName = params.row.firstName || "";
         const lastName = params.row.lastName || "";
         return (
-          <Typography sx={{ fontWeight: 500, color: "#18181b" }}>
+          <Typography
+            sx={{
+              fontWeight: 500,
+              color: "#18181b",
+              display: "flex",
+              alignItems: "center",
+              height: "100%",
+            }}
+          >
             {`${firstName} ${lastName}`}
           </Typography>
         );
@@ -407,7 +415,12 @@ const UsersPage = () => {
       minWidth: 230,
       sortable: false,
       renderCell: (params) => (
-        <Stack direction="row" spacing={1.5} alignItems="center" height="100%">
+        <Stack
+          direction="row"
+          spacing={1.5}
+          alignItems="flex-start"
+          sx={{ pt: 1.5 }}
+        >
           <Button
             variant="contained"
             size="small"

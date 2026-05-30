@@ -197,6 +197,8 @@ const DashArticleListPage = () => {
       field: 'isPublished',
       headerName: 'Status',
       flex: 1,
+      headerAlign: 'center', 
+      align: 'center',
       renderCell: (params) => (
         <Box
           sx={{
@@ -224,14 +226,15 @@ const DashArticleListPage = () => {
     {
       field: 'actions',
       headerName: 'Actions',
-      flex: 1,
+      width: 250,
       sortable: false,
       renderCell: (params) => (
         <Box
           sx={{
             display: 'flex',
             alignItems: 'center',
-            gap: 2,
+            justifyContent: 'flex-start',
+            gap: 1.5,
             height: '100%',
           }}
         >
