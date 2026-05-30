@@ -23,6 +23,7 @@ import AssessmentIcon from "@mui/icons-material/Assessment";
 import LogoutIcon from "@mui/icons-material/Logout";
 import Button from "@mui/material/Button";
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
+import ArticleIcon from "@mui/icons-material/Article";
 
 const drawerWidth = 240;
 
@@ -44,6 +45,12 @@ const dashboardNavItems = [
     title: "Users",
     to: "/dashboard/users",
     icon: PeopleIcon,
+  },
+  {
+    label: "Articles",
+    title: "Articles",
+    to: "/dashboard/articles",
+    icon: ArticleIcon,
   },
 ];
 
@@ -179,10 +186,18 @@ const DashLayout = () => {
   const location = useLocation();
   const pageTitle = getPageTitle(location.pathname);
   const navigate = useNavigate();
+  const userType = localStorage.getItem("type");
 
   const handleDrawerOpen = () => setOpen(true);
   const handleDrawerClose = () => setOpen(false);
   const handleLogout = () => navigate("/");
+   const filteredNavItems = dashboardNavItems.filter((item) => {
+    if (userType === "editor" && item.to === "/dashboard/users") {
+      return false;
+    }
+
+    return true;
+  });
 
   return (
     <Box sx={{ display: "flex", minHeight: "100vh", bgcolor: "#f4f4f5" }}>
@@ -236,7 +251,7 @@ const DashLayout = () => {
             }}
         >
             <List>
-            {dashboardNavItems.map(({ label, to, icon: Icon }) => (
+            {filteredNavItems.map(({ label, to, icon: Icon }) => (
                 <ListItem key={to} disablePadding sx={{ display: "block" }}>
                 <ListItemButton
                     component={Link}
@@ -323,7 +338,16 @@ const DashLayout = () => {
         </Box>
         </Drawer>
 
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          width: 0,
+          minWidth: 0,
+          overflowX: "hidden",
+          p: 3,
+        }}
+      >
         <DrawerHeader />
         <Outlet />
       </Box>
