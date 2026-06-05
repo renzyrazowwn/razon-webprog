@@ -13,7 +13,10 @@ connectDB();
 
 // 2. Define Strict CORS Options
 const corsOptions = {
-    origin: "*", // Change this to your exact Vercel URL in production for security
+    origin: [
+    "https://razon-webprog.vercel.app",
+    "http://localhost:3000"
+    ],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Origin", "Accept"],
     methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],
