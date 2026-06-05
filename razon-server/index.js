@@ -1,60 +1,47 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const path = require("path");
 const bodyParser = require("body-parser");
-const jsonParser = bodyParser.json();
 const connectDB = require("./config/db");
 const userRoutes = require("./routes/userRoutes");
 const articleRoutes = require("./routes/articleRoutes");
 
 const app = express();
 
-// Database Connection
+// 1. Initialize Database Connection
 connectDB();
 
-app.use(express.json());
-
-//Middleware
-app.use(jsonParser);
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cors());
-
-// vercel options
+// 2. Define Strict CORS Options
 const corsOptions = {
-    origin: "*", // Allow all origins
-    credentials: true, // Allow credentials
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-    methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
-    preflightContinue: false,
-    optionsSuccessStatus: 204, // For legacy browser support
+    origin: "*", // Change this to your exact Vercel URL in production for security
+    credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Origin", "Accept"],
+    methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],
+    optionsSuccessStatus: 204, 
 };
 
-app.options("", cors(corsOptions)); // Pre-flight request for all routes
+// 3. Apply Global CORS Middleware FIRST (Handles both standard requests and pre-flight OPTIONS)
 app.use(cors(corsOptions));
 
-// Curb Cores Error by adding a header here
-app.use((req, res, next) => {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader(
-        "Access-Control-Allow-Headers",
-        "Origin, X-Requested-With, Content, Accept, Content-Type, Authorization"
-    );
-    res.setHeader(
-        "Access-Control-Allow-Methods",
-        "GET, POST, PUT, DELETE, PATCH, OPTIONS"
-    );
-    next();
-});
+// 4. Body Parsing Middleware
+app.use(express.json());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-// Routes
+// 5. App Routes
 app.use("/api/users", userRoutes);
 app.use("/api/articles", articleRoutes);
 
-// Error Handling
+// 6. Global Error Handling Middleware (Must be the LAST middleware)
 app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ message: "Server Error" });
+    console.error("SERVER ERROR LOG:", err.stack);
+    
+    // Explicitly re-apply CORS headers here so client browsers read the 500 error instead of a CORS block
+    res.header("Access-Control-Allow-Origin", "*");
+    res.status(500).json({ 
+        error: "Internal Server Error",
+        message: err.message || "Something went wrong on the server." 
+    });
 });
 
 const PORT = process.env.PORT || 8000;
