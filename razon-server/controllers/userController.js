@@ -83,7 +83,7 @@ const loginUser = async (req, res) => {
     }
 
     // Block viewers from authenticating into protected dashboards
-    if (user.type === 'viewer') {
+    if (user.role === 'viewer') {
       return res.status(403).json({
         message: 'Viewers are not allowed to log in.',
       });
@@ -100,7 +100,7 @@ const loginUser = async (req, res) => {
 
     // Generate token secure tracking payload
     const token = jwt.sign(
-      { id: user._id, email: user.email, type: user.type },
+      { id: user._id, email: user.email, role: user.role },
       process.env.JWT_SECRET,
       {
         expiresIn: '7d',
@@ -110,7 +110,7 @@ const loginUser = async (req, res) => {
     res.status(200).json({
       token,
       firstName: user.firstName,
-      type: user.type,
+      role: user.role,
     });
   } catch (error) {
     console.error(error);
